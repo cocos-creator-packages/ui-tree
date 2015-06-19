@@ -1,8 +1,8 @@
 <link rel="import" href="packages://ui-kit/widget/index.html">
-<link rel="import" href="packages://tree-view/widget/tree-item.html">
-<link rel="import" href="packages://tree-view/widget/tree-view.html">
+<link rel="import" href="packages://ui-tree/widget/tree-item.html">
+<link rel="import" href="packages://ui-tree/widget/tree-view.html">
 
-<dom-module id="tree-view-preview">
+<dom-module id="ui-tree-preview">
     <style>
         :host {
             display: block;
@@ -18,8 +18,8 @@
 <script>
     var Fs = require('fire-fs');
 
-    Editor.registerPanel( 'tree-view.preview', {
-        is: 'tree-view-preview',
+    Editor.registerPanel( 'ui-tree.preview', {
+        is: 'ui-tree-preview',
 
         ready: function () {
             var path = Editor.url('packages://tree-view/panel/data/zed-tree.json');

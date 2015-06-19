@@ -5,7 +5,7 @@ module.exports = {
     unload: function () {
     },
 
-    'tree-view:open': function () {
-        Editor.Panel.open('tree-view.preview');
+    'ui-tree:open': function () {
+        Editor.Panel.open('ui-tree.preview');
     },
 };

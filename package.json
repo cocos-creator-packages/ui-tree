@@ -1,5 +1,5 @@
 {
-  "name": "tree-view",
+  "name": "ui-tree",
   "version": "0.0.1",
   "description": "Tree View Widgets",
   "author": "Firebox Technology",
@@ -8,15 +8,15 @@
   },
   "main": "main.js",
   "menus": {
-    "Panel/Tree View Preview": {
-      "message": "tree-view:open"
+    "Panel/UI Tree Preview": {
+      "message": "ui-tree:open"
     }
   },
   "panels": {
     "preview": {
       "frame": "panel/preview.html",
       "type": "dockable",
-      "title": "TreeView Preview",
+      "title": "Tree Widgets Preview",
       "messages": [
       ]
     }
