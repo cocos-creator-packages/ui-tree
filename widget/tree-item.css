@@ -1,0 +1,82 @@
+:host {
+    display: block;
+
+    font-size: 12px;
+    margin-left: 0px;
+}
+
+:host[folded] > #content {
+    display: none;
+}
+
+:host ::content > * {
+    margin-left: 12px;
+}
+
+#header {
+    position: relative;
+    padding-bottom: 1px;
+}
+
+#bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 16px;
+}
+
+:host[selected] > #bar {
+    background-color: #555;
+}
+
+.inline-block-wrapper {
+    display: inline-block;
+}
+
+.flex-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+
+    white-space: nowrap;
+    height: 16px;
+
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #aaa;
+    cursor: default;
+}
+
+#foldIcon {
+    font-size: 14px;
+    width: 10px;
+    margin-right: 2px;
+
+    visibility: hidden;
+    cursor: pointer;
+    text-align: center;
+}
+
+:host[foldable] > #header #foldIcon {
+    visibility: visible;
+}
+
+#typeIcon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 2px;
+}
+
+#typeIcon img {
+    width: 16px;
+    height: 16px;
+}
+
+#name.no-name {
+    color: #6e6e6e;
+}
+
+#content {
+    display: block;
+}

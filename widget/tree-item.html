@@ -1,0 +1,98 @@
+<dom-module id="tree-item">
+    <link rel="import" type="css" href="tree-item.css">
+
+    <template>
+        <div id="bar"></div>
+        <div id="header">
+            <div class="inline-block-wrapper">
+                <div class="flex-wrapper">
+                    <i id="foldIcon" class$="{{_foldIconClass(folded)}}"
+                       on-click="_onFold"
+                       on-dblclick="_onDblClick"
+                       >
+                    </i>
+                    <i id="typeIcon" hidden></i>
+                    <span id="name" class$="{{_nameClass(name)}}">{{_nameText(name)}}</span>
+                </div>
+            </div>
+        </div>
+        <div id="content">
+            <content />
+        </div>
+    </template>
+
+</dom-module>
+
+<script>
+    Editor.registerWidget( 'tree-item', {
+        is: 'tree-item',
+
+        properties: {
+            foldable: {
+                type: Boolean,
+                value: false,
+                notify: true,
+                reflectToAttribute: true,
+            },
+
+            folded: {
+                type: Boolean,
+                value: false,
+                notify: true,
+                reflectToAttribute: true,
+            },
+
+            selected: {
+                type: Boolean,
+                value: false,
+                notify: true,
+                reflectToAttribute: true,
+            },
+
+            name: {
+                type: String,
+                value: '',
+            },
+        },
+
+        listeners: {
+            'dblclick': '_onDblClick',
+        },
+
+        _nameClass: function ( name ) {
+            if ( name === '' )
+                return 'no-name';
+            return 'name';
+        },
+
+        _nameText: function ( name ) {
+            if ( name === '' )
+                return 'No Name';
+            return name;
+        },
+
+        _foldIconClass: function ( folded ) {
+            if ( folded )
+                return 'fa fa-caret-right';
+
+            return 'fa fa-caret-down';
+        },
+
+        _onFold: function ( event ) {
+            event.stopPropagation();
+
+            this.folded = !this.folded;
+        },
+
+        _onDblClick: function ( event ) {
+            event.stopPropagation();
+
+            if ( event.target === this.$.foldIcon ) {
+                return;
+            }
+
+            console.log('edit asset %s', this.name);
+            // this.fire('open');
+        },
+    });
+</script>

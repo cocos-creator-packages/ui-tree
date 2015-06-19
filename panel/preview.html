@@ -1,0 +1,67 @@
+<link rel="import" href="packages://ui-kit/widget/index.html">
+<link rel="import" href="packages://tree-view/widget/tree-item.html">
+<link rel="import" href="packages://tree-view/widget/tree-view.html">
+
+<dom-module id="tree-view-preview">
+    <style>
+        :host {
+            display: block;
+        }
+    </style>
+
+    <template>
+        <tree-view id="tree" class="fit"></tree-view>
+        <editor-loader id="loader" text="Loading" mask></editor-loader>
+    </template>
+</dom-module>
+
+<script>
+    var Fs = require('fire-fs');
+
+    Editor.registerPanel( 'tree-view.panel', {
+        is: 'tree-view-preview',
+
+        ready: function () {
+            var path = Editor.url('packages://tree-view/panel/data/girlsworld-tree.json');
+            Fs.readFile( path, function ( err, data ) {
+                if ( !err ) {
+                    var data = JSON.parse(data);
+                    this.build(data);
+                }
+            }.bind(this));
+        },
+
+        build: function ( data ) {
+            console.time('tree');
+
+            data.forEach( function ( entry ) {
+                var newEL = this.newEntryRecursively(entry);
+                this.$.tree.addEL( this.$.tree, newEL, entry.name, entry.path );
+
+                newEL.folded = false;
+            }.bind(this));
+
+            this.$.loader.clear();
+            console.timeEnd('tree');
+        },
+
+        newEntryRecursively: function ( entry ) {
+            var el = this.newEntry();
+
+            if ( entry.children ) {
+                entry.children.forEach( function ( childEntry ) {
+                    var childEL = this.newEntryRecursively(childEntry);
+                    this.$.tree.addEL( el, childEL, childEntry.name, childEntry.path );
+                    // childEL.folded = false;
+                }.bind(this) )
+            }
+
+            return el;
+        },
+
+        newEntry: function () {
+            var ctor = Editor.widgets['tree-item'];
+            return new ctor();
+        },
+    });
+</script>
