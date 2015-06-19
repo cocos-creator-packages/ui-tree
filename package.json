@@ -13,7 +13,7 @@
     }
   },
   "panels": {
-    "panel": {
+    "preview": {
       "frame": "panel/preview.html",
       "type": "dockable",
       "title": "TreeView Preview",
@@ -22,10 +22,10 @@
     }
   },
   "widgets": {
-    "tree-item": "widget/tree-item.html",
-    "tree-view": "widget/tree-view.html"
+    "tree-item": "widget/tree-item/tree-item.html",
+    "tree-view": "widget/tree-view/tree-view.html"
   },
   "tests": [
-    "test/path-tree.html"
+    "test/id-tree.html"
   ]
 }

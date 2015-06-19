@@ -1,5 +1,6 @@
 :host {
     display: block;
+    box-sizing: border-box;
 
     font-size: 12px;
     margin-left: 0px;
@@ -7,10 +8,6 @@
 
 :host[folded] > #content {
     display: none;
-}
-
-:host ::content > * {
-    margin-left: 12px;
 }
 
 #header {

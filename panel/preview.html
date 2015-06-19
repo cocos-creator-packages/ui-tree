@@ -18,11 +18,11 @@
 <script>
     var Fs = require('fire-fs');
 
-    Editor.registerPanel( 'tree-view.panel', {
+    Editor.registerPanel( 'tree-view.preview', {
         is: 'tree-view-preview',
 
         ready: function () {
-            var path = Editor.url('packages://tree-view/panel/data/girlsworld-tree.json');
+            var path = Editor.url('packages://tree-view/panel/data/zed-tree.json');
             Fs.readFile( path, function ( err, data ) {
                 if ( !err ) {
                     var data = JSON.parse(data);
@@ -36,7 +36,7 @@
 
             data.forEach( function ( entry ) {
                 var newEL = this.newEntryRecursively(entry);
-                this.$.tree.addEL( this.$.tree, newEL, entry.name, entry.path );
+                this.$.tree.addItem( this.$.tree, newEL, entry.name, entry.path );
 
                 newEL.folded = false;
             }.bind(this));
@@ -51,7 +51,7 @@
             if ( entry.children ) {
                 entry.children.forEach( function ( childEntry ) {
                     var childEL = this.newEntryRecursively(childEntry);
-                    this.$.tree.addEL( el, childEL, childEntry.name, childEntry.path );
+                    this.$.tree.addItem( el, childEL, childEntry.name, childEntry.path );
                     // childEL.folded = false;
                 }.bind(this) )
             }

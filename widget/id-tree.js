@@ -10,19 +10,22 @@ EditorUI.idtree = (function () {
             this.id2el = {};
         },
 
-        addEL: function ( parentEL, itemEL, name, id ) {
+        addItem: function ( parentEL, itemEL, name, id ) {
             if ( !id ) {
-                throw new Error( 'The id your provide is invalid: ' + id );
+                throw new Error( 'The id you provide is invalid: ' + id );
             }
 
             if ( this.id2el[id] ) {
-                throw new Error( 'The item already added in the tree: ' + id );
+                throw new Error( 'The id already added in the tree: ' + id );
             }
 
             // init item element
             itemEL.userId = id;
             itemEL.name = name;
             itemEL.folded = true;
+            if ( itemEL.foldable === undefined ) {
+                itemEL.foldable = false;
+            }
 
             // append to parent
             Polymer.dom(parentEL).appendChild(itemEL);
@@ -34,9 +37,10 @@ EditorUI.idtree = (function () {
             this.id2el[id] = itemEL;
         },
 
-        removeEL: function ( itemEL ) {
+        removeItem: function ( itemEL ) {
             var parentEL = Polymer.dom(itemEL).parentNode;
-            parentEL.removeChild(itemEL);
+            Polymer.dom(parentEL).removeChild(itemEL);
+
             if ( parentEL !== this ) {
                 parentEL.foldable = _checkFoldable(parentEL);
             }
@@ -54,14 +58,18 @@ EditorUI.idtree = (function () {
             deleteRecursively(itemEL);
         },
 
-        removeELById: function (id) {
+        removeItemById: function (id) {
             var el = this.id2el[id];
             if ( el ) {
-                this.removeEL(el);
+                this.removeItem(el);
             }
         },
 
         setItemParent: function ( itemEL, parentEL ) {
+            if ( EditorUI.isSelfOrAncient( parentEL, itemEL ) ) {
+                throw new Error('Failed to set item parent to its child');
+            }
+
             var oldParentEL = Polymer.dom(itemEL).parentNode;
             Polymer.dom(parentEL).appendChild(itemEL);
 

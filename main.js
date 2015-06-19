@@ -6,6 +6,6 @@ module.exports = {
     },
 
     'tree-view:open': function () {
-        Editor.Panel.open('tree-view.panel');
+        Editor.Panel.open('tree-view.preview');
     },
 };
