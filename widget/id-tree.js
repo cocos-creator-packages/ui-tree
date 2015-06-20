@@ -1,3 +1,10 @@
+function _getLastChildRecursively ( itemEL ) {
+    if ( itemEL.foldable && !itemEL.folded ) {
+        return _getLastChildRecursively ( Polymer.dom(itemEL).lastElementChild );
+    }
+    return itemEL;
+}
+
 EditorUI.idtree = (function () {
     function _checkFoldable ( el ) {
         return Polymer.dom(el).childNodes.length > 0;
@@ -7,7 +14,8 @@ EditorUI.idtree = (function () {
         'ui-idtree': true,
 
         created: function () {
-            this.id2el = {};
+            this._id2el = {};
+            this._activeElement = null;
         },
 
         addItem: function ( parentEL, itemEL, name, id ) {
@@ -15,12 +23,12 @@ EditorUI.idtree = (function () {
                 throw new Error( 'The id you provide is invalid: ' + id );
             }
 
-            if ( this.id2el[id] ) {
+            if ( this._id2el[id] ) {
                 throw new Error( 'The id already added in the tree: ' + id );
             }
 
             // init item element
-            itemEL.userId = id;
+            itemEL._userId = id;
             itemEL.name = name;
             itemEL.folded = true;
             if ( itemEL.foldable === undefined ) {
@@ -28,13 +36,18 @@ EditorUI.idtree = (function () {
             }
 
             // append to parent
-            Polymer.dom(parentEL).appendChild(itemEL);
+            if ( parentEL.insertItem ) {
+                parentEL.insertItem(itemEL);
+            } else {
+                Polymer.dom(parentEL).appendChild(itemEL);
+            }
+
             if ( parentEL !== this ) {
                 parentEL.foldable = true;
             }
 
             // add to id table
-            this.id2el[id] = itemEL;
+            this._id2el[id] = itemEL;
         },
 
         removeItem: function ( itemEL ) {
@@ -47,7 +60,7 @@ EditorUI.idtree = (function () {
 
             var self = this;
             function deleteRecursively (itemEL) {
-                delete self.id2el[itemEL.userId];
+                delete self._id2el[itemEL._userId];
 
                 // children
                 var children = Polymer.dom(itemEL).children;
@@ -59,7 +72,7 @@ EditorUI.idtree = (function () {
         },
 
         removeItemById: function (id) {
-            var el = this.id2el[id];
+            var el = this._id2el[id];
             if ( el ) {
                 this.removeItem(el);
             }
@@ -71,19 +84,26 @@ EditorUI.idtree = (function () {
             }
 
             var oldParentEL = Polymer.dom(itemEL).parentNode;
-            Polymer.dom(parentEL).appendChild(itemEL);
 
+            //
+            if ( parentEL.insertItem ) {
+                parentEL.insertItem(itemEL);
+            } else {
+                Polymer.dom(parentEL).appendChild(itemEL);
+            }
+
+            //
             if ( oldParentEL !== this ) {
                 oldParentEL.foldable = _checkFoldable(oldParentEL);
             }
         },
 
         setItemParentById: function (id, parentId) {
-            var itemEL = this.id2el[id];
+            var itemEL = this._id2el[id];
             if ( !itemEL ) {
                 return;
             }
-            var parentEL = parentId ? this.id2el[parentId] : this;
+            var parentEL = parentId ? this._id2el[parentId] : this;
             if ( !parentEL ) {
                 return;
             }
@@ -91,11 +111,57 @@ EditorUI.idtree = (function () {
         },
 
         renameItemById: function (id, newName) {
-            var itemEL = this.id2el[id];
+            var itemEL = this._id2el[id];
             if ( !itemEL ) {
                 return;
             }
             itemEL.name = newName;
+        },
+
+        nextItem: function ( curItem, skipChildren ) {
+            var curItemDOM = Polymer.dom(curItem);
+            if ( !skipChildren && curItem.foldable && !curItem.folded ) {
+                return curItemDOM.firstElementChild;
+            }
+
+            if ( curItemDOM.nextElementSibling )
+                return curItemDOM.nextElementSibling;
+
+            var parentEL = curItemDOM.parentNode;
+            if ( parentEL === this ) {
+                return null;
+            }
+
+            return this.nextItem(parentEL, true);
+        },
+
+        prevItem: function ( curItem ) {
+            var curItemDOM = Polymer.dom(curItem);
+
+            var prevSiblingEL = curItemDOM.previousSibling;
+            if ( prevSiblingEL ) {
+                if ( prevSiblingEL.foldable && !prevSiblingEL.folded ) {
+                    return _getLastChildRecursively (prevSiblingEL);
+                }
+                else {
+                    return prevSiblingEL;
+                }
+            }
+
+            var parentEL = curItemDOM.parentNode;
+            if ( parentEL === this ) {
+                return null;
+            }
+
+            return parentEL;
+        },
+
+        lastItem: function () {
+            var lastChildEL = Polymer.dom(this).lastElementChild;
+            if ( lastChildEL && lastChildEL.foldable && !lastChildEL.folded ) {
+                return _getLastChildRecursively (lastChildEL);
+            }
+            return lastChildEL;
         },
 
         clear: function () {
@@ -103,11 +169,11 @@ EditorUI.idtree = (function () {
             while (thisDOM.firstChild) {
                 thisDOM.removeChild(thisDOM.firstChild);
             }
-            this.id2el = {};
+            this._id2el = {};
         },
 
         expand: function ( id, expand ) {
-            var itemEL = this.idToItem[id];
+            var itemEL = this._id2el[id];
             var parentEL = Polymer.dom(itemEL).parentNode;
             while ( parentEL ) {
                 if ( parentEL === this )
@@ -115,6 +181,44 @@ EditorUI.idtree = (function () {
 
                 parentEL.folded = !expand;
                 parentEL = Polymer.dom(parentEL).parentNode;
+            }
+        },
+
+        selectItemById: function ( id ) {
+            var itemEL = this._id2el[id];
+            if ( itemEL ) {
+                itemEL.selected = true;
+            }
+        },
+
+        unselectItemById: function ( id ) {
+            var itemEL = this._id2el[id];
+            if ( itemEL ) {
+                itemEL.selected = false;
+            }
+        },
+
+        activeItemById: function ( id ) {
+            var itemEL = this._id2el[id];
+            if ( itemEL ) {
+                this._activeElement = itemEL;
+            }
+        },
+
+        deactiveItemById: function ( id ) {
+            var itemEL = this._id2el[id];
+            if ( itemEL && this._activeElement === itemEL ) {
+                this._activeElement = null;
+            }
+        },
+
+        activeItem: function ( itemEL ) {
+            this._activeElement = itemEL;
+        },
+
+        deactiveItem: function ( itemEL ) {
+            if ( itemEL && this._activeElement === itemEL ) {
+                this._activeElement = null;
             }
         },
     };

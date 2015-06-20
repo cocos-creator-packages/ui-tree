@@ -22,7 +22,7 @@
         is: 'ui-tree-preview',
 
         ready: function () {
-            var path = Editor.url('packages://tree-view/panel/data/zed-tree.json');
+            var path = Editor.url('packages://ui-tree/panel/data/mw2-tree.json');
             Fs.readFile( path, function ( err, data ) {
                 if ( !err ) {
                     var data = JSON.parse(data);

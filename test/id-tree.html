@@ -45,8 +45,8 @@
                     targetEL.addItem( targetEL, newEL(), 'foobar', 'id-foobar-02'  );
 
                     expect( Polymer.dom(targetEL).children.length ).to.be.equal(2);
-                    expect( Polymer.dom(targetEL).children[0].userId ).to.be.equal('id-foobar');
-                    expect( Polymer.dom(targetEL).children[1].userId ).to.be.equal('id-foobar-02');
+                    expect( Polymer.dom(targetEL).children[0]._userId ).to.be.equal('id-foobar');
+                    expect( Polymer.dom(targetEL).children[1]._userId ).to.be.equal('id-foobar-02');
 
                     done();
                 });
@@ -59,10 +59,10 @@
                     targetEL.addItem( foobarEL, foobarEL02, 'foobar 02', 'id-foobar-02'  );
 
                     expect( Polymer.dom(targetEL).children.length ).to.be.equal(1);
-                    expect( Polymer.dom(targetEL).children[0].userId ).to.be.equal('id-foobar');
+                    expect( Polymer.dom(targetEL).children[0]._userId ).to.be.equal('id-foobar');
 
                     expect( Polymer.dom(foobarEL).children.length ).to.be.equal(1);
-                    expect( Polymer.dom(foobarEL).children[0].userId ).to.be.equal('id-foobar-02');
+                    expect( Polymer.dom(foobarEL).children[0]._userId ).to.be.equal('id-foobar-02');
 
                     expect( targetEL.foldable ).to.be.equal(undefined);
                     expect( foobarEL.foldable ).to.be.equal(true);
@@ -100,7 +100,7 @@
                     targetEL.removeItem( fooEL );
 
                     expect( Polymer.dom(targetEL).children.length ).to.be.equal(0);
-                    expect( targetEL.id2el ).to.be.deep.equal({});
+                    expect( targetEL._id2el ).to.be.deep.equal({});
 
                     done();
                 });

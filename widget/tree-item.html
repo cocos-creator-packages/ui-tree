@@ -65,6 +65,10 @@
             'dblclick': '_onDblClick',
         },
 
+        ready: function () {
+            this._userId = '';
+        },
+
         _nameClass: function ( name ) {
             if ( name === '' )
                 return 'no-name';
