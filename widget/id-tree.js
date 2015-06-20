@@ -221,6 +221,31 @@ EditorUI.idtree = (function () {
                 this._activeElement = null;
             }
         },
+
+        dumpItemStates: function () {
+            var states = [];
+
+            for ( var id in this._id2el ) {
+                if ( this._id2el[id].foldable ) {
+                    states.push({
+                        id: this._id2el[id]._userId,
+                        folded: this._id2el[id].folded
+                    });
+                }
+            }
+
+            return states;
+        },
+
+        restoreItemStates: function (states) {
+            for ( var i = 0; i < states.length; i++ ) {
+                var state = states[i];
+                var itemEL = this._id2el[state.id];
+                if ( itemEL ) {
+                    itemEL.folded = state.folded;
+                }
+            }
+        },
     };
 
     return idtree;
