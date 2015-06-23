@@ -1,11 +1,11 @@
-function _getLastChildRecursively ( itemEL ) {
-    if ( itemEL.foldable && !itemEL.folded ) {
-        return _getLastChildRecursively ( Polymer.dom(itemEL).lastElementChild );
-    }
-    return itemEL;
-}
-
 EditorUI.idtree = (function () {
+    function _getLastChildRecursively ( itemEL ) {
+        if ( itemEL.foldable && !itemEL.folded ) {
+            return _getLastChildRecursively ( Polymer.dom(itemEL).lastElementChild );
+        }
+        return itemEL;
+    }
+
     function _checkFoldable ( el ) {
         return Polymer.dom(el).childNodes.length > 0;
     }
