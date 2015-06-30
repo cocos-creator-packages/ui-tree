@@ -8,7 +8,7 @@
   },
   "main": "main.js",
   "menus": {
-    "Panel/UI Tree Preview": {
+    "Developer/UI-Tree Preview": {
       "message": "ui-tree:open"
     }
   },
