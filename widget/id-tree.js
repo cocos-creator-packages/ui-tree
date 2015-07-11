@@ -19,7 +19,7 @@ EditorUI.idtree = (function () {
         },
 
         addItem: function ( parentEL, itemEL, name, id ) {
-            if ( id == null ) {
+            if ( id === null ) {
                 throw new Error( 'The id you provide is invalid: ' + id );
             }
 
@@ -245,6 +245,23 @@ EditorUI.idtree = (function () {
                     itemEL.folded = state.folded;
                 }
             }
+        },
+
+        getToplevelElements: function ( ids ) {
+            var elements = new Array(ids.length);
+            for ( var i = 0; i < ids.length; ++i ) {
+                elements[i] = this._id2el[ids[i]];
+            }
+            var resultELs = Editor.Utils.arrayCmpFilter ( elements, function ( elA, elB ) {
+                if ( elA.contains(elB) ) {
+                    return 1;
+                }
+                if ( elB.contains(elA) ) {
+                    return -1;
+                }
+                return 0;
+            } );
+            return resultELs;
         },
     };
 

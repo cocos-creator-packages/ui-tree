@@ -26,11 +26,7 @@
     background-color: #555;
 }
 
-.inline-block-wrapper {
-    display: inline-block;
-}
-
-.flex-wrapper {
+.wrapper {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -45,6 +41,8 @@
 }
 
 #foldIcon {
+    flex: none;
+
     font-size: 14px;
     width: 10px;
     margin-right: 2px;
@@ -59,9 +57,15 @@
 }
 
 #icon {
+    flex: none;
+
     width: 16px;
     height: 16px;
     margin-right: 2px;
+}
+
+#name {
+    flex: none;
 }
 
 #name.no-name {
