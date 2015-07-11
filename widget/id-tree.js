@@ -91,6 +91,7 @@ EditorUI.idtree = (function () {
             } else {
                 Polymer.dom(parentEL).appendChild(itemEL);
             }
+            parentEL.foldable = _checkFoldable(parentEL);
 
             //
             if ( oldParentEL !== this ) {
