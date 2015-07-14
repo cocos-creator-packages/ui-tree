@@ -185,6 +185,12 @@ EditorUI.idtree = (function () {
             }
         },
 
+        scrollToItem: function ( el ) {
+            window.requestAnimationFrame( function () {
+                this.$.content.scrollTop = el.offsetTop + 16 - this.offsetHeight/2;
+            }.bind(this));
+        },
+
         selectItemById: function ( id ) {
             var itemEL = this._id2el[id];
             if ( itemEL ) {
