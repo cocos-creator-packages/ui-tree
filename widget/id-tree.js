@@ -19,7 +19,7 @@ EditorUI.idtree = (function () {
         },
 
         addItem: function ( parentEL, itemEL, name, id ) {
-            if ( id === null ) {
+            if ( id === null || id === undefined ) {
                 throw new Error( 'The id you provide is invalid: ' + id );
             }
 
