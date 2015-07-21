@@ -36,7 +36,10 @@
 
             data.forEach( function ( entry ) {
                 var newEL = this.newEntryRecursively(entry);
-                this.$.tree.addItem( this.$.tree, newEL, entry.name, entry.path );
+                this.$.tree.addItem( this.$.tree, newEL, {
+                    id: entry.path,
+                    name: entry.name,
+                } );
 
                 newEL.folded = false;
             }.bind(this));
@@ -51,7 +54,10 @@
             if ( entry.children ) {
                 entry.children.forEach( function ( childEntry ) {
                     var childEL = this.newEntryRecursively(childEntry);
-                    this.$.tree.addItem( el, childEL, childEntry.name, childEntry.path );
+                    this.$.tree.addItem( el, childEL, {
+                        id: childEntry.path,
+                        name: childEntry.name,
+                    } );
                     // childEL.folded = false;
                 }.bind(this) );
             }

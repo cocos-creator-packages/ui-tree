@@ -18,19 +18,29 @@ EditorUI.idtree = (function () {
             this._activeElement = null;
         },
 
-        addItem: function ( parentEL, itemEL, name, id ) {
+        addItem: function ( parentEL, itemEL, options ) {
+            options = options || {};
+
+            var id = options.id;
             if ( id === null || id === undefined ) {
                 throw new Error( 'The id you provide is invalid: ' + id );
             }
 
+            //
             if ( this._id2el[id] ) {
                 throw new Error( 'The id already added in the tree: ' + id );
             }
 
+            //
+            var name = options.name || '';
+            var folded = options.folded;
+            if ( folded === null || folded === undefined )
+                folded = true;
+
             // init item element
             itemEL._userId = id;
             itemEL.name = name;
-            itemEL.folded = true;
+            itemEL.folded = folded;
             if ( itemEL.foldable === undefined ) {
                 itemEL.foldable = false;
             }

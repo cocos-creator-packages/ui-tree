@@ -41,8 +41,14 @@
                 });
 
                 it( 'should be able add element at the root', function ( done ) {
-                    targetEL.addItem( targetEL, newEL(), 'foobar', 'id-foobar'  );
-                    targetEL.addItem( targetEL, newEL(), 'foobar', 'id-foobar-02'  );
+                    targetEL.addItem( targetEL, newEL(), {
+                        id: 'id-foobar',
+                        name: 'foobar',
+                    } );
+                    targetEL.addItem( targetEL, newEL(), {
+                        id: 'id-foobar-02',
+                        name: 'foobar',
+                    } );
 
                     expect( Polymer.dom(targetEL).children.length ).to.be.equal(2);
                     expect( Polymer.dom(targetEL).children[0]._userId ).to.be.equal('id-foobar');
@@ -53,10 +59,16 @@
 
                 it( 'should be able add element at the child', function ( done ) {
                     var foobarEL = newEL();
-                    targetEL.addItem( targetEL, foobarEL, 'foobar', 'id-foobar'  );
+                    targetEL.addItem( targetEL, foobarEL, {
+                        id: 'id-foobar',
+                        name: 'foobar',
+                    } );
 
                     var foobarEL02 = newEL();
-                    targetEL.addItem( foobarEL, foobarEL02, 'foobar 02', 'id-foobar-02'  );
+                    targetEL.addItem( foobarEL, foobarEL02, {
+                        id: 'id-foobar-02',
+                        name: 'foobar 02',
+                    } );
 
                     expect( Polymer.dom(targetEL).children.length ).to.be.equal(1);
                     expect( Polymer.dom(targetEL).children[0]._userId ).to.be.equal('id-foobar');
@@ -73,7 +85,9 @@
 
                 it( 'should be able throw error when id not provide', function ( done ) {
                     var fn = function () {
-                        targetEL.addItem( targetEL, newEL(), 'foobar' );
+                        targetEL.addItem( targetEL, newEL(), {
+                            name: 'foobar'
+                        } );
                     }
                     expect(fn).to.throw(Error);
 
@@ -81,9 +95,15 @@
                 });
 
                 it( 'should be able throw error when add same id child', function ( done ) {
-                    targetEL.addItem( targetEL, newEL(), 'foobar', 'id-foobar'  );
+                    targetEL.addItem( targetEL, newEL(), {
+                        id: 'id-foobar',
+                        name: 'foobar'
+                    } );
                     var fn = function () {
-                        targetEL.addItem( targetEL, newEL(), 'foobar 02', 'id-foobar'  );
+                        targetEL.addItem( targetEL, newEL(), {
+                            id: 'id-foobar',
+                            name: 'foobar 02'
+                        } );
                     }
                     expect(fn).to.throw(Error);
 
@@ -92,9 +112,15 @@
 
                 it( 'should be able to remove elements', function ( done ) {
                     var fooEL = newEL();
-                    targetEL.addItem( targetEL, fooEL, 'foo', 'id-foo'  );
+                    targetEL.addItem( targetEL, fooEL, {
+                        id: 'id-foo',
+                        name: 'foo'
+                    } );
                     for ( var i = 0; i < 10; ++i ) {
-                        targetEL.addItem( fooEL, newEL(), 'bar ' + i, 'id-bar-' + i  );
+                        targetEL.addItem( fooEL, newEL(), {
+                            id: 'id-bar-' + i,
+                            name: 'bar ' + i,
+                        } );
                     }
 
                     targetEL.removeItem( fooEL );
@@ -107,9 +133,15 @@
 
                 it( 'should be able to remove elements by id', function ( done ) {
                     var fooEL = newEL();
-                    targetEL.addItem( targetEL, fooEL, 'foo', 'id-foo'  );
+                    targetEL.addItem( targetEL, fooEL, {
+                        id: 'id-foo',
+                        name: 'foo',
+                    } );
                     for ( var i = 0; i < 10; ++i ) {
-                        targetEL.addItem( fooEL, newEL(), 'bar ' + i, 'id-bar-' + i  );
+                        targetEL.addItem( fooEL, newEL(), {
+                            id: 'id-bar-' + i,
+                            name: 'bar ' + i,
+                        } );
                     }
 
                     targetEL.removeItemById( 'id-bar-1' );
@@ -122,10 +154,16 @@
 
                 it( 'should be able to change parent', function ( done ) {
                     var fooEL = newEL();
-                    targetEL.addItem( targetEL, fooEL, 'foo', 'id-foo' );
+                    targetEL.addItem( targetEL, fooEL, {
+                        id: 'id-foo',
+                        name: 'foo'
+                    } );
 
                     var barEL = newEL();
-                    targetEL.addItem( targetEL, barEL, 'bar', 'id-bar' );
+                    targetEL.addItem( targetEL, barEL, {
+                        id: 'id-bar',
+                        name: 'bar'
+                    } );
 
                     targetEL.setItemParent( barEL, fooEL );
 
@@ -137,10 +175,16 @@
 
                 it( 'should be able to change parent by id', function ( done ) {
                     var fooEL = newEL();
-                    targetEL.addItem( targetEL, fooEL, 'foo', 'id-foo' );
+                    targetEL.addItem( targetEL, fooEL, {
+                        id: 'id-foo',
+                        name: 'foo',
+                    } );
 
                     var barEL = newEL();
-                    targetEL.addItem( targetEL, barEL, 'bar', 'id-bar' );
+                    targetEL.addItem( targetEL, barEL, {
+                        id: 'id-bar',
+                        name: 'bar',
+                    } );
 
                     targetEL.setItemParentById( 'id-bar', 'id-foo' );
 
@@ -152,10 +196,16 @@
 
                 it( 'should be able to report error when set item parent to its child', function ( done ) {
                     var fooEL = newEL();
-                    targetEL.addItem( targetEL, fooEL, 'foo', 'id-foo' );
+                    targetEL.addItem( targetEL, fooEL, {
+                        id: 'id-foo',
+                        name: 'foo'
+                    } );
 
                     var barEL = newEL();
-                    targetEL.addItem( fooEL, barEL, 'bar', 'id-bar' );
+                    targetEL.addItem( fooEL, barEL, {
+                        id: 'id-bar',
+                        name: 'bar',
+                    } );
 
                     var fn = function () {
                         targetEL.setItemParent( fooEL, barEL );
