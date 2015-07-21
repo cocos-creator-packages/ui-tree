@@ -20,6 +20,9 @@ EditorUI.idtree = (function () {
 
         addItem: function ( parentEL, itemEL, options ) {
             options = options || {};
+            for ( var p in options ) {
+                itemEL[p] = options[p];
+            }
 
             var id = options.id;
             if ( id === null || id === undefined ) {
