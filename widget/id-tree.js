@@ -258,13 +258,15 @@ EditorUI.idtree = (function () {
         },
 
         restoreItemStates: function (states) {
-            for ( var i = 0; i < states.length; i++ ) {
-                var state = states[i];
+            if ( !states )
+                return;
+
+            states.forEach( function ( state ) {
                 var itemEL = this._id2el[state.id];
                 if ( itemEL ) {
                     itemEL.folded = state.folded;
                 }
-            }
+            }.bind(this));
         },
 
         getToplevelElements: function ( ids ) {
