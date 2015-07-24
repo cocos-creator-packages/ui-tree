@@ -63,6 +63,12 @@ EditorUI.idtree = (function () {
             this._id2el[id] = itemEL;
         },
 
+        updateItemID: function ( itemEL, newID ) {
+            delete this._id2el[itemEL._userId];
+            itemEL._userId = newID;
+            this._id2el[newID] = itemEL;
+        },
+
         removeItem: function ( itemEL ) {
             var parentEL = Polymer.dom(itemEL).parentNode;
             Polymer.dom(parentEL).removeChild(itemEL);
