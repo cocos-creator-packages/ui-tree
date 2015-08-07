@@ -4,7 +4,7 @@
   "description": "Tree View Widgets",
   "author": "Firebox Technology",
   "hosts": {
-    "editor-framework": "^0.3.12"
+    "editor-framework": "^0.3.14"
   },
   "main": "main.js",
   "menus": {
@@ -17,8 +17,7 @@
       "frame": "panel/preview.html",
       "type": "dockable",
       "title": "Tree Widgets Preview",
-      "messages": [
-      ]
+      "messages": []
     }
   },
   "widgets": {
