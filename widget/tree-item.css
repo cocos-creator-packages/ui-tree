@@ -62,6 +62,10 @@
     width: 16px;
     height: 16px;
     margin-right: 2px;
+
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
 }
 
 #name {
