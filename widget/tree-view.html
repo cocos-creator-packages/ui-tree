@@ -1,3 +1,5 @@
+<script type="text/javascript" src="id-tree.js"></script>
+
 <dom-module id="tree-view">
     <link rel="import" type="css" href="tree-view.css">
 
@@ -7,22 +9,20 @@
         <div id="insertLine" class="insert"></div>
         <editor-input id="nameInput" style="display:none"></editor-input>
     </template>
+
+    <script>
+        Editor.registerElement({
+
+            behaviors: [EditorUI.idtree],
+
+            properties: {
+            },
+
+            created: function () {
+            },
+
+            ready: function () {
+            },
+        });
+    </script>
 </dom-module>
-
-<script type="text/javascript" src="id-tree.js"></script>
-<script>
-    Editor.registerWidget( 'tree-view', {
-        is: 'tree-view',
-
-        behaviors: [EditorUI.idtree],
-
-        properties: {
-        },
-
-        created: function () {
-        },
-
-        ready: function () {
-        },
-    });
-</script>
