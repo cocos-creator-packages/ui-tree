@@ -232,8 +232,7 @@ EditorUI.idtree = (function () {
         },
 
         deactiveItemById: function ( id ) {
-            var itemEL = this._id2el[id];
-            if ( itemEL && this._activeElement === itemEL ) {
+            if ( this._activeElement && this._activeElement._userId === id ) {
                 this._activeElement = null;
             }
         },
