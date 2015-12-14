@@ -1,296 +1,305 @@
-EditorUI.idtree = (function () {
-    function _getLastChildRecursively ( itemEL ) {
-        if ( itemEL.foldable && !itemEL.folded ) {
-            return _getLastChildRecursively ( Polymer.dom(itemEL).lastElementChild );
+EditorUI.idtree = (() => {
+  'use strict';
+
+  function _getLastChildRecursively ( itemEL ) {
+    if ( itemEL.foldable && !itemEL.folded ) {
+      return _getLastChildRecursively ( Polymer.dom(itemEL).lastElementChild );
+    }
+    return itemEL;
+  }
+
+  function _checkFoldable ( el ) {
+    return Polymer.dom(el).childNodes.length > 0;
+  }
+
+  let idtree = {
+    'ui-idtree': true,
+
+    created () {
+      this._id2el = {};
+      this._activeElement = null;
+    },
+
+    addItem ( parentEL, itemEL, options ) {
+      options = options || {};
+      for ( var p in options ) {
+        itemEL[p] = options[p];
+      }
+
+      let id = options.id;
+      if ( id === null || id === undefined ) {
+        throw new Error( 'The id you provide is invalid: ' + id );
+      }
+
+      //
+      if ( this._id2el[id] ) {
+        throw new Error( 'The id already added in the tree: ' + id );
+      }
+
+      //
+      let name = options.name || '';
+      let folded = options.folded;
+      if ( folded === null || folded === undefined ) {
+        folded = true;
+      }
+
+      // init item element
+      itemEL._userId = id;
+      itemEL.name = name;
+      itemEL.folded = folded;
+      if ( itemEL.foldable === undefined ) {
+        itemEL.foldable = false;
+      }
+
+      // append to parent
+      if ( parentEL.insertItem ) {
+        parentEL.insertItem(itemEL);
+      } else {
+        Polymer.dom(parentEL).appendChild(itemEL);
+      }
+
+      if ( parentEL !== this ) {
+        parentEL.foldable = true;
+      }
+
+      // add to id table
+      this._id2el[id] = itemEL;
+    },
+
+    updateItemID ( itemEL, newID ) {
+      delete this._id2el[itemEL._userId];
+      itemEL._userId = newID;
+      this._id2el[newID] = itemEL;
+    },
+
+    removeItem ( itemEL ) {
+      let parentEL = Polymer.dom(itemEL).parentNode;
+      Polymer.dom(parentEL).removeChild(itemEL);
+
+      if ( parentEL !== this ) {
+        parentEL.foldable = _checkFoldable(parentEL);
+      }
+
+      let self = this;
+      function deleteRecursively (itemEL) {
+        delete self._id2el[itemEL._userId];
+
+        // children
+        let children = Polymer.dom(itemEL).children;
+        for ( let i = 0; i < children.length; ++i ) {
+          deleteRecursively(children[i]);
         }
-        return itemEL;
-    }
+      }
+      deleteRecursively(itemEL);
+    },
 
-    function _checkFoldable ( el ) {
-        return Polymer.dom(el).childNodes.length > 0;
-    }
+    removeItemById (id) {
+      let el = this._id2el[id];
+      if ( el ) {
+        this.removeItem(el);
+      }
+    },
 
-    var idtree = {
-        'ui-idtree': true,
+    setItemParent ( itemEL, parentEL ) {
+      if ( EditorUI.isSelfOrAncient( parentEL, itemEL ) ) {
+        throw new Error('Failed to set item parent to its child');
+      }
 
-        created: function () {
-            this._id2el = {};
-            this._activeElement = null;
-        },
+      let oldParentEL = Polymer.dom(itemEL).parentNode;
 
-        addItem: function ( parentEL, itemEL, options ) {
-            options = options || {};
-            for ( var p in options ) {
-                itemEL[p] = options[p];
-            }
+      //
+      if ( parentEL.insertItem ) {
+        parentEL.insertItem(itemEL);
+      } else {
+        Polymer.dom(parentEL).appendChild(itemEL);
+      }
+      parentEL.foldable = _checkFoldable(parentEL);
 
-            var id = options.id;
-            if ( id === null || id === undefined ) {
-                throw new Error( 'The id you provide is invalid: ' + id );
-            }
+      //
+      if ( oldParentEL !== this ) {
+        oldParentEL.foldable = _checkFoldable(oldParentEL);
+      }
+    },
 
-            //
-            if ( this._id2el[id] ) {
-                throw new Error( 'The id already added in the tree: ' + id );
-            }
+    setItemParentById (id, parentId) {
+      let itemEL = this._id2el[id];
+      if ( !itemEL ) {
+        return;
+      }
 
-            //
-            var name = options.name || '';
-            var folded = options.folded;
-            if ( folded === null || folded === undefined )
-                folded = true;
+      let parentEL = parentId ? this._id2el[parentId] : this;
+      if ( !parentEL ) {
+        return;
+      }
+      this.setItemParent(itemEL, parentEL);
+    },
 
-            // init item element
-            itemEL._userId = id;
-            itemEL.name = name;
-            itemEL.folded = folded;
-            if ( itemEL.foldable === undefined ) {
-                itemEL.foldable = false;
-            }
+    renameItemById (id, newName) {
+      let itemEL = this._id2el[id];
+      if ( !itemEL ) {
+        return;
+      }
+      itemEL.name = newName;
+    },
 
-            // append to parent
-            if ( parentEL.insertItem ) {
-                parentEL.insertItem(itemEL);
-            } else {
-                Polymer.dom(parentEL).appendChild(itemEL);
-            }
+    nextItem ( curItem, skipChildren ) {
+      let curItemDOM = Polymer.dom(curItem);
+      if ( !skipChildren && curItem.foldable && !curItem.folded ) {
+        return curItemDOM.firstElementChild;
+      }
 
-            if ( parentEL !== this ) {
-                parentEL.foldable = true;
-            }
+      if ( curItemDOM.nextElementSibling ) {
+        return curItemDOM.nextElementSibling;
+      }
 
-            // add to id table
-            this._id2el[id] = itemEL;
-        },
+      let parentEL = curItemDOM.parentNode;
+      if ( parentEL === this ) {
+        return null;
+      }
 
-        updateItemID: function ( itemEL, newID ) {
-            delete this._id2el[itemEL._userId];
-            itemEL._userId = newID;
-            this._id2el[newID] = itemEL;
-        },
+      return this.nextItem(parentEL, true);
+    },
 
-        removeItem: function ( itemEL ) {
-            var parentEL = Polymer.dom(itemEL).parentNode;
-            Polymer.dom(parentEL).removeChild(itemEL);
+    prevItem ( curItem ) {
+      let curItemDOM = Polymer.dom(curItem);
 
-            if ( parentEL !== this ) {
-                parentEL.foldable = _checkFoldable(parentEL);
-            }
+      let prevSiblingEL = curItemDOM.previousSibling;
+      if ( prevSiblingEL ) {
+        if ( prevSiblingEL.foldable && !prevSiblingEL.folded ) {
+          return _getLastChildRecursively (prevSiblingEL);
+        }
 
-            var self = this;
-            function deleteRecursively (itemEL) {
-                delete self._id2el[itemEL._userId];
+        return prevSiblingEL;
+      }
 
-                // children
-                var children = Polymer.dom(itemEL).children;
-                for ( var i = 0; i < children.length; ++i ) {
-                    deleteRecursively(children[i]);
-                }
-            }
-            deleteRecursively(itemEL);
-        },
+      let parentEL = curItemDOM.parentNode;
+      if ( parentEL === this ) {
+        return null;
+      }
 
-        removeItemById: function (id) {
-            var el = this._id2el[id];
-            if ( el ) {
-                this.removeItem(el);
-            }
-        },
+      return parentEL;
+    },
 
-        setItemParent: function ( itemEL, parentEL ) {
-            if ( EditorUI.isSelfOrAncient( parentEL, itemEL ) ) {
-                throw new Error('Failed to set item parent to its child');
-            }
+    lastItem () {
+      let lastChildEL = Polymer.dom(this).lastElementChild;
+      if ( lastChildEL && lastChildEL.foldable && !lastChildEL.folded ) {
+        return _getLastChildRecursively (lastChildEL);
+      }
+      return lastChildEL;
+    },
 
-            var oldParentEL = Polymer.dom(itemEL).parentNode;
+    clear () {
+      let thisDOM = Polymer.dom(this);
+      while (thisDOM.firstChild) {
+        thisDOM.removeChild(thisDOM.firstChild);
+      }
+      this._id2el = {};
+    },
 
-            //
-            if ( parentEL.insertItem ) {
-                parentEL.insertItem(itemEL);
-            } else {
-                Polymer.dom(parentEL).appendChild(itemEL);
-            }
-            parentEL.foldable = _checkFoldable(parentEL);
+    expand ( id, expand ) {
+      let itemEL = this._id2el[id];
+      let parentEL = Polymer.dom(itemEL).parentNode;
+      while ( parentEL ) {
+        if ( parentEL === this ) {
+          break;
+        }
 
-            //
-            if ( oldParentEL !== this ) {
-                oldParentEL.foldable = _checkFoldable(oldParentEL);
-            }
-        },
+        parentEL.folded = !expand;
+        parentEL = Polymer.dom(parentEL).parentNode;
+      }
+    },
 
-        setItemParentById: function (id, parentId) {
-            var itemEL = this._id2el[id];
-            if ( !itemEL ) {
-                return;
-            }
-            var parentEL = parentId ? this._id2el[parentId] : this;
-            if ( !parentEL ) {
-                return;
-            }
-            this.setItemParent(itemEL, parentEL);
-        },
+    scrollToItem ( el ) {
+      window.requestAnimationFrame(() => {
+        this.$.content.scrollTop = el.offsetTop + 16 - this.offsetHeight/2;
+      });
+    },
 
-        renameItemById: function (id, newName) {
-            var itemEL = this._id2el[id];
-            if ( !itemEL ) {
-                return;
-            }
-            itemEL.name = newName;
-        },
+    selectItemById ( id ) {
+      let itemEL = this._id2el[id];
+      if ( itemEL ) {
+        itemEL.selected = true;
+      }
+    },
 
-        nextItem: function ( curItem, skipChildren ) {
-            var curItemDOM = Polymer.dom(curItem);
-            if ( !skipChildren && curItem.foldable && !curItem.folded ) {
-                return curItemDOM.firstElementChild;
-            }
+    unselectItemById ( id ) {
+      let itemEL = this._id2el[id];
+      if ( itemEL ) {
+        itemEL.selected = false;
+      }
+    },
 
-            if ( curItemDOM.nextElementSibling )
-                return curItemDOM.nextElementSibling;
+    activeItemById ( id ) {
+      let itemEL = this._id2el[id];
+      if ( itemEL ) {
+        this._activeElement = itemEL;
+      }
+    },
 
-            var parentEL = curItemDOM.parentNode;
-            if ( parentEL === this ) {
-                return null;
-            }
+    deactiveItemById ( id ) {
+      if ( this._activeElement && this._activeElement._userId === id ) {
+        this._activeElement = null;
+      }
+    },
 
-            return this.nextItem(parentEL, true);
-        },
+    activeItem ( itemEL ) {
+      this._activeElement = itemEL;
+    },
 
-        prevItem: function ( curItem ) {
-            var curItemDOM = Polymer.dom(curItem);
+    deactiveItem ( itemEL ) {
+      if ( itemEL && this._activeElement === itemEL ) {
+        this._activeElement = null;
+      }
+    },
 
-            var prevSiblingEL = curItemDOM.previousSibling;
-            if ( prevSiblingEL ) {
-                if ( prevSiblingEL.foldable && !prevSiblingEL.folded ) {
-                    return _getLastChildRecursively (prevSiblingEL);
-                }
-                else {
-                    return prevSiblingEL;
-                }
-            }
+    dumpItemStates () {
+      let states = [];
 
-            var parentEL = curItemDOM.parentNode;
-            if ( parentEL === this ) {
-                return null;
-            }
+      for ( let id in this._id2el ) {
+        if ( this._id2el[id].foldable ) {
+          states.push({
+            id: this._id2el[id]._userId,
+            folded: this._id2el[id].folded
+          });
+        }
+      }
 
-            return parentEL;
-        },
+      return states;
+    },
 
-        lastItem: function () {
-            var lastChildEL = Polymer.dom(this).lastElementChild;
-            if ( lastChildEL && lastChildEL.foldable && !lastChildEL.folded ) {
-                return _getLastChildRecursively (lastChildEL);
-            }
-            return lastChildEL;
-        },
+    restoreItemStates (states) {
+      if ( !states ) {
+        return;
+      }
 
-        clear: function () {
-            var thisDOM = Polymer.dom(this);
-            while (thisDOM.firstChild) {
-                thisDOM.removeChild(thisDOM.firstChild);
-            }
-            this._id2el = {};
-        },
+      states.forEach(state => {
+        let itemEL = this._id2el[state.id];
+        if ( itemEL ) {
+          itemEL.folded = state.folded;
+        }
+      });
+    },
 
-        expand: function ( id, expand ) {
-            var itemEL = this._id2el[id];
-            var parentEL = Polymer.dom(itemEL).parentNode;
-            while ( parentEL ) {
-                if ( parentEL === this )
-                    break;
+    getToplevelElements ( ids ) {
+      let elements = new Array(ids.length);
+      for ( let i = 0; i < ids.length; ++i ) {
+        elements[i] = this._id2el[ids[i]];
+      }
 
-                parentEL.folded = !expand;
-                parentEL = Polymer.dom(parentEL).parentNode;
-            }
-        },
+      let resultELs = Editor.Utils.arrayCmpFilter ( elements, ( elA, elB ) => {
+        if ( elA.contains(elB) ) {
+          return 1;
+        }
 
-        scrollToItem: function ( el ) {
-            window.requestAnimationFrame( function () {
-                this.$.content.scrollTop = el.offsetTop + 16 - this.offsetHeight/2;
-            }.bind(this));
-        },
+        if ( elB.contains(elA) ) {
+          return -1;
+        }
 
-        selectItemById: function ( id ) {
-            var itemEL = this._id2el[id];
-            if ( itemEL ) {
-                itemEL.selected = true;
-            }
-        },
+        return 0;
+      });
+      return resultELs;
+    },
+  };
 
-        unselectItemById: function ( id ) {
-            var itemEL = this._id2el[id];
-            if ( itemEL ) {
-                itemEL.selected = false;
-            }
-        },
-
-        activeItemById: function ( id ) {
-            var itemEL = this._id2el[id];
-            if ( itemEL ) {
-                this._activeElement = itemEL;
-            }
-        },
-
-        deactiveItemById: function ( id ) {
-            if ( this._activeElement && this._activeElement._userId === id ) {
-                this._activeElement = null;
-            }
-        },
-
-        activeItem: function ( itemEL ) {
-            this._activeElement = itemEL;
-        },
-
-        deactiveItem: function ( itemEL ) {
-            if ( itemEL && this._activeElement === itemEL ) {
-                this._activeElement = null;
-            }
-        },
-
-        dumpItemStates: function () {
-            var states = [];
-
-            for ( var id in this._id2el ) {
-                if ( this._id2el[id].foldable ) {
-                    states.push({
-                        id: this._id2el[id]._userId,
-                        folded: this._id2el[id].folded
-                    });
-                }
-            }
-
-            return states;
-        },
-
-        restoreItemStates: function (states) {
-            if ( !states )
-                return;
-
-            states.forEach( function ( state ) {
-                var itemEL = this._id2el[state.id];
-                if ( itemEL ) {
-                    itemEL.folded = state.folded;
-                }
-            }.bind(this));
-        },
-
-        getToplevelElements: function ( ids ) {
-            var elements = new Array(ids.length);
-            for ( var i = 0; i < ids.length; ++i ) {
-                elements[i] = this._id2el[ids[i]];
-            }
-            var resultELs = Editor.Utils.arrayCmpFilter ( elements, function ( elA, elB ) {
-                if ( elA.contains(elB) ) {
-                    return 1;
-                }
-                if ( elB.contains(elA) ) {
-                    return -1;
-                }
-                return 0;
-            } );
-            return resultELs;
-        },
-    };
-
-    return idtree;
+  return idtree;
 })();
