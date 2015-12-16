@@ -8,8 +8,9 @@
   },
   "main": "main.js",
   "menus": {
-    "Developer/UI Preview/ui-tree": {
-      "message": "ui-tree:open"
+    "i18n:MAIN_MENU.developer.title/UI Preview/ui-tree": {
+      "message": "ui-tree:open",
+      "dev": true
     }
   },
   "panels": {
