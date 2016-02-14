@@ -1,11 +1,15 @@
+'use strict';
+
 module.exports = {
-    load: function () {
-    },
+  load () {
+  },
 
-    unload: function () {
-    },
+  unload () {
+  },
 
-    'ui-tree:open': function () {
-        Editor.Panel.open('ui-tree.preview');
+  messages: {
+    open () {
+      Editor.Panel.open('ui-tree.preview');
     },
+  }
 };
