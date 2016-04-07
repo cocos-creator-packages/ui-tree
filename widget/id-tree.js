@@ -1,4 +1,4 @@
-EditorUI.idtree = (() => {
+Editor.UI.idtree = (() => {
   'use strict';
 
   function _getLastChildRecursively ( itemEL ) {
@@ -101,7 +101,7 @@ EditorUI.idtree = (() => {
     },
 
     setItemParent ( itemEL, parentEL ) {
-      if ( EditorUI.isSelfOrAncient( parentEL, itemEL ) ) {
+      if ( Editor.UI.PolymerUtils.isSelfOrAncient( parentEL, itemEL ) ) {
         throw new Error('Failed to set item parent to its child');
       }
 
